@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Panagiotis Karras — SAP FI Consultant</title>
 <meta name="description" content="Panagiotis Karras — SAP FI Consultant at PwC Greece, S/4HANA Financial Accounting, Record-to-Report. Portfolio and side projects." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
 <style>
   :root {
     --navy: #101a33;
@@ -16,6 +19,10 @@
     --bg-soft: #f5f6f9;
     --accent: #2f5fd6;
     --accent-soft: #eaf0ff;
+    --tech: #10b981;
+    --tech-soft: #e7faf2;
+    --font-display: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -29,29 +36,127 @@
   a { color: var(--accent); text-decoration: none; }
   a:hover { text-decoration: underline; }
   .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
-  section { padding: 64px 0; }
+  section { padding: 64px 0; scroll-margin-top: 64px; }
   section + section { border-top: 1px solid var(--line); }
+  h1, h2, h3, h4 { font-family: var(--font-display); }
   h2 {
     font-size: 13px;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--accent);
     font-weight: 700;
     margin: 0 0 28px;
+    font-family: var(--font-mono);
   }
+  h2::before { content: "// "; color: var(--tech); }
   h3 { font-size: 20px; margin: 0 0 4px; }
   p { margin: 0 0 12px; color: var(--ink); }
   .muted { color: var(--muted); }
 
+  /* Reveal-on-scroll */
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity 600ms ease, transform 600ms ease; }
+  .reveal.in-view { opacity: 1; transform: translateY(0); }
+
+  /* Sticky nav */
+  .topnav {
+    position: sticky; top: 0; z-index: 500;
+    background: rgba(16,26,51,0.82); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .topnav .wrap { max-width: 1040px; display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; }
+  .topnav-brand {
+    display: flex; align-items: center; gap: 8px; color: #fff; font-family: var(--font-mono);
+    font-size: 13px; font-weight: 600; letter-spacing: 0.02em;
+  }
+  .topnav-brand .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--tech); box-shadow: 0 0 0 3px rgba(16,185,129,0.25); }
+  .topnav-links { display: flex; gap: 22px; }
+  .topnav-links a { color: #c7d2ff; font-size: 13px; font-family: var(--font-mono); }
+  .topnav-links a:hover { color: #fff; text-decoration: none; }
+  @media (max-width: 560px) { .topnav-links { display: none; } }
+
+  /* Left sidebar nav (wide screens only) */
+  .sidenav {
+    display: none;
+    position: fixed; top: 0; left: 0; bottom: 0; width: 220px;
+    background: var(--navy); border-right: 1px solid rgba(255,255,255,0.08);
+    padding: 26px 20px; overflow-y: auto; z-index: 600;
+  }
+  .sidenav-brand {
+    display: flex; align-items: center; gap: 8px; color: #fff; font-family: var(--font-mono);
+    font-size: 13px; font-weight: 600; margin-bottom: 30px;
+  }
+  .sidenav-brand .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--tech); box-shadow: 0 0 0 3px rgba(16,185,129,0.25); }
+  .sidenav-group { border-top: 1px solid rgba(255,255,255,0.08); padding: 4px 0; }
+  .sidenav-group:first-child { border-top: none; }
+  .sidenav-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .sidenav-section {
+    display: block; font-family: var(--font-mono); font-size: 12px; font-weight: 600;
+    letter-spacing: 0.04em; color: #c7d2ff; padding: 8px 0; flex: 1;
+  }
+  .sidenav-section:hover, .sidenav-section.active { color: #fff; }
+  .sidenav-section.active { color: var(--tech); }
+  .sidenav-expand {
+    background: none; border: none; color: #6f7bab; cursor: pointer;
+    padding: 6px 4px; font-size: 10px; line-height: 1; transition: transform 200ms ease, color 150ms ease;
+  }
+  .sidenav-expand:hover { color: #fff; }
+  .sidenav-group.expanded .sidenav-expand { transform: rotate(180deg); color: var(--tech); }
+  .sidenav-subs { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 260ms ease; }
+  .sidenav-group.expanded .sidenav-subs { grid-template-rows: 1fr; }
+  .sidenav-subs-inner { overflow: hidden; min-height: 0; }
+  .sidenav-sub {
+    display: block; font-size: 12px; color: #8b96c2; padding: 5px 0 5px 14px;
+    border-left: 1px solid rgba(255,255,255,0.12); margin-left: 3px;
+  }
+  .sidenav-sub:hover { color: #fff; text-decoration: none; }
+  @media (min-width: 1180px) {
+    .sidenav { display: block; }
+    .topnav { display: none; }
+    body { margin-left: 220px; }
+  }
+
   /* Hero */
   header.hero {
+    position: relative;
     background: linear-gradient(160deg, var(--navy), var(--navy-2));
     color: #fff;
-    padding: 72px 0 56px;
+    padding: 64px 0 60px;
+    overflow: hidden;
   }
-  header.hero .wrap { display: flex; flex-wrap: wrap; gap: 32px; align-items: center; justify-content: space-between; }
-  header.hero h1 { font-size: 32px; margin: 0 0 8px; letter-spacing: 0.01em; }
-  header.hero .role { font-size: 16px; color: #c7d2ff; margin: 0 0 18px; }
+  header.hero::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 42px 42px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 30% 20%, #000 40%, transparent 90%);
+    mask-image: radial-gradient(ellipse 80% 70% at 30% 20%, #000 40%, transparent 90%);
+  }
+  header.hero::after {
+    content: "";
+    position: absolute; width: 480px; height: 480px; right: -140px; top: -180px;
+    background: radial-gradient(circle, rgba(16,185,129,0.28), transparent 70%);
+    filter: blur(10px);
+  }
+  header.hero .wrap { position: relative; display: flex; flex-wrap: wrap; gap: 32px; align-items: center; justify-content: space-between; }
+  .kicker-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: #b7ffe0; background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.35);
+    padding: 5px 12px; border-radius: 999px; margin-bottom: 16px;
+  }
+  .kicker-badge .dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--tech);
+    box-shadow: 0 0 0 3px rgba(16,185,129,0.3);
+    animation: pulse-dot 2.2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+  header.hero h1 { font-size: 34px; margin: 0 0 8px; letter-spacing: 0.005em; font-weight: 700; }
+  header.hero .role { font-size: 16px; color: #c7d2ff; margin: 0 0 18px; font-family: var(--font-mono); }
   header.hero .loc { font-size: 14px; color: #9aa5c9; }
   .hero-links { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 20px; }
   .hero-links a {
@@ -75,15 +180,18 @@
     background: var(--bg-soft);
     border-radius: 14px;
     padding: 32px;
+    border: 1px solid var(--line);
+    transition: box-shadow 220ms ease, border-color 220ms ease;
   }
+  .project-card:hover { border-color: rgba(16,185,129,0.35); box-shadow: 0 0 0 1px rgba(16,185,129,0.12), 0 20px 40px rgba(16,26,51,0.08); }
   .project-card .badge {
     display: inline-block;
+    font-family: var(--font-mono);
     font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--accent);
-    background: var(--accent-soft);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--tech);
+    background: var(--tech-soft);
     padding: 4px 10px;
     border-radius: 6px;
     margin-bottom: 14px;
@@ -91,14 +199,48 @@
   .project-card h3 { font-size: 24px; }
   .project-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
   .project-tags span {
-    font-size: 12px; background: #fff; border: 1px solid var(--line);
-    padding: 4px 10px; border-radius: 999px; color: var(--muted);
+    font-family: var(--font-mono); font-size: 12px; background: #fff; border: 1px solid var(--line);
+    padding: 4px 10px; border-radius: 6px; color: var(--muted);
   }
   .module-count { font-size: 13px; color: var(--muted); margin: 18px 0 0; }
-  .cat-heading {
-    font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent);
-    font-weight: 700; margin: 30px 0 12px;
+  .project-meta { font-family: var(--font-mono); font-size: 13px; }
+
+  /* Chapters (collapsible categories) */
+  .chapters-toolbar { display: flex; justify-content: flex-end; margin: 14px 0 4px; }
+  .chapters-toolbar button {
+    background: none; border: none; color: var(--accent); font-size: 13px; font-weight: 600;
+    cursor: pointer; padding: 4px 0;
   }
+  .chapters-toolbar button:hover { text-decoration: underline; }
+  .chapter { border-top: 1px solid var(--line); scroll-margin-top: 24px; }
+  .chapter:last-of-type { border-bottom: 1px solid var(--line); }
+  .chapter-toggle {
+    width: 100%; display: flex; align-items: center; gap: 10px;
+    background: none; border: none; cursor: pointer; text-align: left;
+    padding: 18px 2px; font-family: inherit;
+  }
+  .chapter-toggle:hover .chapter-title { color: var(--accent); }
+  .chapter-title {
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--navy);
+    font-weight: 700; transition: color 150ms ease;
+  }
+  .chapter-count {
+    font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--tech); background: var(--tech-soft);
+    border: 1px solid rgba(16,185,129,0.3); border-radius: 999px; padding: 1px 8px;
+  }
+  .chapter-chevron {
+    margin-left: auto; color: var(--muted); font-size: 13px;
+    transition: transform 220ms ease;
+  }
+  .chapter.open .chapter-chevron { transform: rotate(180deg); }
+  .chapter-body {
+    display: grid; grid-template-rows: 0fr;
+    transition: grid-template-rows 320ms ease;
+  }
+  .chapter.open .chapter-body { grid-template-rows: 1fr; }
+  .chapter-body-inner { overflow: hidden; min-height: 0; }
+  .chapter-body .shots { padding-bottom: 22px; }
+
   .shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 0; }
   .shots figure { margin: 0; }
   .shots img {
@@ -150,10 +292,15 @@
   .repo-note code { background: #fff; border: 1px solid var(--line); padding: 2px 6px; border-radius: 4px; }
 
   /* Other work */
-  .other-card {
-    display: flex; align-items: center; justify-content: space-between; gap: 20px;
-    background: var(--bg-soft); border-radius: 10px; padding: 20px 24px; flex-wrap: wrap;
+  .viz-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin: 20px 0 24px; }
+  .viz-card {
+    background: var(--bg-soft); border-radius: 10px; overflow: hidden; border: 1px solid var(--line);
+    transition: box-shadow 220ms ease, border-color 220ms ease;
   }
+  .viz-card:hover { border-color: rgba(16,185,129,0.35); box-shadow: 0 0 0 1px rgba(16,185,129,0.12), 0 16px 32px rgba(16,26,51,0.08); }
+  .viz-card h4 { font-size: 14px; margin: 0; padding: 12px 14px; color: var(--navy); border-bottom: 1px solid var(--line); }
+  .viz-embed { width: 100%; height: 420px; background: #fff; }
+  .viz-embed iframe { width: 100%; height: 100%; border: 0; display: block; }
 
   /* Contact / footer */
   footer { padding: 48px 0 60px; }
@@ -169,9 +316,65 @@
 </head>
 <body>
 
+<nav class="topnav">
+  <div class="wrap">
+    <span class="topnav-brand"><span class="dot"></span>PK / portfolio</span>
+    <div class="topnav-links">
+      <a href="#professional-work">Professional Projects</a>
+      <a href="#project">Project</a>
+      <a href="#other-work">Data Viz</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<nav class="sidenav" aria-label="Section navigation">
+  <span class="sidenav-brand"><span class="dot"></span>PK / portfolio</span>
+
+  <div class="sidenav-group">
+    <div class="sidenav-row">
+      <a class="sidenav-section" data-section="professional-work" href="#professional-work">Professional Projects</a>
+      <button type="button" class="sidenav-expand" aria-expanded="false" aria-label="Toggle Professional Projects sub-items">&#9662;</button>
+    </div>
+    <div class="sidenav-subs"><div class="sidenav-subs-inner">
+      <a class="sidenav-sub" href="#proj-gov-erp">GOV ERP Support</a>
+      <a class="sidenav-sub" href="#proj-s4hana">S/4HANA Greenfield</a>
+    </div></div>
+  </div>
+
+  <div class="sidenav-group">
+    <div class="sidenav-row">
+      <a class="sidenav-section" data-section="project" href="#project">Featured Project</a>
+      <button type="button" class="sidenav-expand" aria-expanded="false" aria-label="Toggle Featured Project sub-items">&#9662;</button>
+    </div>
+    <div class="sidenav-subs"><div class="sidenav-subs-inner">
+      <a class="sidenav-sub" href="#chapter-sales-pipeline">Sales &amp; Pipeline</a>
+      <a class="sidenav-sub" href="#chapter-customer-data">Customer Data</a>
+      <a class="sidenav-sub" href="#chapter-operations">Operations</a>
+      <a class="sidenav-sub" href="#chapter-automation">Automation &amp; Config</a>
+      <a class="sidenav-sub" href="#chapter-reporting">Reporting &amp; Team</a>
+      <a class="sidenav-sub" href="#chapter-enterprise">Enterprise Config</a>
+      <a class="sidenav-sub" href="#chapter-personal">Personal &amp; Chrome</a>
+    </div></div>
+  </div>
+
+  <div class="sidenav-group">
+    <div class="sidenav-row">
+      <a class="sidenav-section" data-section="other-work" href="#other-work">Data Viz</a>
+    </div>
+  </div>
+
+  <div class="sidenav-group">
+    <div class="sidenav-row">
+      <a class="sidenav-section" data-section="contact" href="#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
 <header class="hero">
   <div class="wrap">
     <div>
+      <span class="kicker-badge"><span class="dot"></span>Personal Portfolio</span>
       <h1>Panagiotis Karras</h1>
       <p class="role">SAP Finance Business Analyst · S/4HANA Financial Accounting · Record-to-Report</p>
       <p class="loc">Athens, Greece</p>
@@ -185,10 +388,123 @@
   </div>
 </header>
 
+<section id="professional-work">
+  <div class="wrap">
+    <h2>Professional projects</h2>
+
+    <div class="chapter" id="proj-gov-erp">
+      <button class="chapter-toggle" aria-expanded="false">
+        <span class="chapter-title">GOV ERP Implementation &amp; Support</span>
+        <span class="chapter-count">Public Sector · 2026–Present</span>
+        <span class="chapter-chevron">&#9662;</span>
+      </button>
+      <div class="chapter-body"><div class="chapter-body-inner">
+        <p class="project-meta muted">Central Government Entity — SAP FI Consultant, PwC Greece</p>
+
+        <h4 class="cat-heading">Scope</h4>
+        <p class="muted">
+          FI configuration, testing, UAT, and end-user enablement, with ongoing functional support
+          for a central government entity.
+        </p>
+
+        <h4 class="cat-heading">My Role &amp; Responsibilities</h4>
+        <p class="muted">
+          Gathering and documenting business and functional requirements from finance stakeholders,
+          translating them into SAP FI solution designs and functional specifications, and
+          supporting defect resolution through to go-live.
+        </p>
+
+        <h4 class="cat-heading">Additional Configuration</h4>
+        <div class="project-tags">
+          <span>Validations &amp; Substitutions</span>
+          <span>Accrual Engine</span>
+          <span>Approval Workflows (Custom &amp; Standard)</span>
+        </div>
+
+        <h4 class="cat-heading">Integrations</h4>
+        <div class="project-tags">
+          <span>European Central Bank (ECB)</span>
+          <span>PP</span>
+          <span>FM</span>
+          <span>MM</span>
+          <span>SD</span>
+        </div>
+
+        <h4 class="cat-heading">Custom Developments (WRICEF)</h4>
+        <p class="muted">
+          Two custom programs supporting government-specific payment control. A Credit Control
+          program enforces a monthly payment ceiling that functions as a credit limit on outgoing
+          payments. A Budget &amp; Expenses program manages the public sector's standing advance
+          (πάγια προκαταβολή) issued to central fund administrators, who reconcile it by submitting
+          consolidated expense reports collected from their subordinate units.
+        </p>
+
+        <h4 class="cat-heading">Methodology</h4>
+        <div class="project-tags">
+          <span>Requirements Analysis</span>
+          <span>Functional Specifications</span>
+          <span>UAT</span>
+          <span>Testing &amp; Defect Resolution</span>
+        </div>
+
+        <h4 class="cat-heading">Systems &amp; Modules</h4>
+        <div class="project-tags">
+          <span>FI Configuration</span>
+          <span>End-user Enablement</span>
+          <span>Functional Support</span>
+          <span>Public Sector ERP</span>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="chapter" id="proj-s4hana">
+      <button class="chapter-toggle" aria-expanded="false">
+        <span class="chapter-title">S/4HANA Greenfield Implementation — Financial Accounting</span>
+        <span class="chapter-count">Private Sector · 2025–2026</span>
+        <span class="chapter-chevron">&#9662;</span>
+      </button>
+      <div class="chapter-body"><div class="chapter-body-inner">
+        <p class="project-meta muted">Petros Petropoulos Commercial &amp; Industrial S.A. — SAP FI Consultant, PwC Greece</p>
+
+        <h4 class="cat-heading">Scope</h4>
+        <p class="muted">
+          Full greenfield implementation covering Financial Accounting end to end: configuration,
+          testing, data migration, key user training, UAT, and go-live support.
+        </p>
+
+        <h4 class="cat-heading">My Role &amp; Responsibilities</h4>
+        <p class="muted">
+          Configured core Financial Accounting — G/L, A/P, A/R, Asset Accounting, Financial
+          Closing. Coordinated UAT cycles and master data validation, and collaborated across CO,
+          MM, and SD workstreams to keep the end-to-end process design integrated and standardised.
+        </p>
+
+        <h4 class="cat-heading">Methodology</h4>
+        <div class="project-tags">
+          <span>Requirements Analysis</span>
+          <span>Functional Specifications</span>
+          <span>UAT</span>
+          <span>Testing &amp; Defect Resolution</span>
+          <span>Key User Training</span>
+        </div>
+
+        <h4 class="cat-heading">Systems &amp; Modules</h4>
+        <div class="project-tags">
+          <span>G/L · A/P · A/R</span>
+          <span>Asset Accounting</span>
+          <span>Financial Closing</span>
+          <span>Data Migration</span>
+          <span>CO / MM / SD workstreams</span>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
 <section id="project">
   <div class="wrap">
     <h2>Featured project</h2>
-    <div class="project-card">
+    <div class="project-card reveal">
       <span class="badge">Self-built · Full-stack</span>
       <h3>BIT CRM</h3>
       <p class="muted">
@@ -203,11 +519,30 @@
         <span>SQLAlchemy / Alembic</span>
         <span>MUI</span>
         <span>Rules & scoring engine</span>
+        <span>AI-assisted development</span>
       </div>
 
-      <p class="module-count">46 screens captured directly from the running app — every module, plus role-based views (sales rep vs. sales manager) and the platform chrome (account menu, notifications, global search). Click any screenshot to enlarge.</p>
+      <h4 class="cat-heading">How it was built</h4>
+      <p class="muted">
+        The architecture, data model, API contract and functional requirements are my
+        own. Implementation was AI-assisted: I specified what the system had to do and
+        why, then directed and reviewed the code against that specification. It is the
+        same loop I run in my day job — gather requirements, design the solution,
+        validate it — applied to a system I owned end to end.
+      </p>
 
-      <h4 class="cat-heading">Sales &amp; Pipeline</h4>
+      <p class="module-count">46 screens captured directly from the running app — every module, plus role-based views (sales rep vs. sales manager) and the platform chrome (account menu, notifications, global search). Click a chapter to expand it, then click any screenshot to enlarge.</p>
+      <div class="chapters-toolbar">
+        <button type="button" id="expandAllBtn">Expand all</button>
+      </div>
+
+      <div class="chapter" id="chapter-sales-pipeline">
+      <button class="chapter-toggle" aria-expanded="false">
+        <span class="chapter-title">Sales &amp; Pipeline</span>
+        <span class="chapter-count">5</span>
+        <span class="chapter-chevron">&#9662;</span>
+      </button>
+      <div class="chapter-body"><div class="chapter-body-inner">
       <div class="shots">
         <figure>
           <img src="assets/screenshots/crm-dashboard.png" alt="BIT CRM dashboard showing pipeline, forecast, and activity widgets" loading="lazy" />
@@ -230,8 +565,16 @@
           <figcaption>Products — the price/product catalog quotes draw from</figcaption>
         </figure>
       </div>
+      </div></div>
+      </div>
 
-      <h4 class="cat-heading">Customer Data</h4>
+      <div class="chapter" id="chapter-customer-data">
+      <button class="chapter-toggle" aria-expanded="false">
+        <span class="chapter-title">Customer Data</span>
+        <span class="chapter-count">2</span>
+        <span class="chapter-chevron">&#9662;</span>
+      </button>
+      <div class="chapter-body"><div class="chapter-body-inner">
       <div class="shots">
         <figure>
           <img src="assets/screenshots/business-partners.png" alt="BIT CRM Customer 360 account view" loading="lazy" />
@@ -242,8 +585,16 @@
           <figcaption>Contacts — people tied to business partner accounts</figcaption>
         </figure>
       </div>
+      </div></div>
+      </div>
 
-      <h4 class="cat-heading">Operations</h4>
+      <div class="chapter" id="chapter-operations">
+      <button class="chapter-toggle" aria-expanded="false">
+        <span class="chapter-title">Operations</span>
+        <span class="chapter-count">5</span>
+        <span class="chapter-chevron">&#9662;</span>
+      </button>
+      <div class="chapter-body"><div class="chapter-body-inner">
       <div class="shots">
         <figure>
           <img src="assets/screenshots/activities.png" alt="BIT CRM Activities list" loading="lazy" />
@@ -266,8 +617,16 @@
           <figcaption>Email — compose workspace with authoritative mailto templates</figcaption>
         </figure>
       </div>
+      </div></div>
+      </div>
 
-      <h4 class="cat-heading">Automation &amp; No-Code Configuration</h4>
+      <div class="chapter" id="chapter-automation">
+      <button class="chapter-toggle" aria-expanded="false">
+        <span class="chapter-title">Automation &amp; No-Code Configuration</span>
+        <span class="chapter-count">11</span>
+        <span class="chapter-chevron">&#9662;</span>
+      </button>
+      <div class="chapter-body"><div class="chapter-body-inner">
       <div class="shots">
         <figure>
           <img src="assets/screenshots/workflows.png" alt="BIT CRM Workflow Automation screen" loading="lazy" />
@@ -314,8 +673,16 @@
           <figcaption>Scoring — configurable lead/opportunity scoring engine</figcaption>
         </figure>
       </div>
+      </div></div>
+      </div>
 
-      <h4 class="cat-heading">Reporting &amp; Team Management</h4>
+      <div class="chapter" id="chapter-reporting">
+      <button class="chapter-toggle" aria-expanded="false">
+        <span class="chapter-title">Reporting &amp; Team Management</span>
+        <span class="chapter-count">5</span>
+        <span class="chapter-chevron">&#9662;</span>
+      </button>
+      <div class="chapter-body"><div class="chapter-body-inner">
       <div class="shots">
         <figure>
           <img src="assets/screenshots/management-report.png" alt="BIT CRM Management Report screen" loading="lazy" />
@@ -338,8 +705,16 @@
           <figcaption>Role in action — a sales manager's pending-approvals queue for the whole team</figcaption>
         </figure>
       </div>
+      </div></div>
+      </div>
 
-      <h4 class="cat-heading">Enterprise-Grade Configuration</h4>
+      <div class="chapter" id="chapter-enterprise">
+      <button class="chapter-toggle" aria-expanded="false">
+        <span class="chapter-title">Enterprise-Grade Configuration</span>
+        <span class="chapter-count">12</span>
+        <span class="chapter-chevron">&#9662;</span>
+      </button>
+      <div class="chapter-body"><div class="chapter-body-inner">
       <div class="shots">
         <figure>
           <img src="assets/screenshots/quote-branding.png" alt="BIT CRM no-code Quote PDF branding settings screen" loading="lazy" />
@@ -390,8 +765,16 @@
           <figcaption>Error Log — application error tracking, admin-only</figcaption>
         </figure>
       </div>
+      </div></div>
+      </div>
 
-      <h4 class="cat-heading">Personal &amp; Platform Chrome</h4>
+      <div class="chapter" id="chapter-personal">
+      <button class="chapter-toggle" aria-expanded="false">
+        <span class="chapter-title">Personal &amp; Platform Chrome</span>
+        <span class="chapter-count">6</span>
+        <span class="chapter-chevron">&#9662;</span>
+      </button>
+      <div class="chapter-body"><div class="chapter-body-inner">
       <div class="shots">
         <figure>
           <img src="assets/screenshots/home.png" alt="BIT CRM Home screen" loading="lazy" />
@@ -418,6 +801,8 @@
           <figcaption>Global Search (Ctrl+K) — jump to any record or screen instantly</figcaption>
         </figure>
       </div>
+      </div></div>
+      </div>
 
       <div class="cta-row">
         <a class="btn btn-primary" href="mailto:Panoskar1995@gmail.com?subject=BIT%20CRM%20repository%20access%20request">Request repository access</a>
@@ -434,12 +819,44 @@
 <section id="other-work">
   <div class="wrap">
     <h2>Other work</h2>
-    <div class="other-card">
-      <div>
-        <h3>Tableau Public</h3>
-        <p class="muted" style="margin:0;">Data visualisation and analytics work built in Tableau.</p>
+    <h3 style="margin-bottom: 4px;">Tableau Public</h3>
+    <p class="muted">A few dashboards built in Tableau — fully interactive below, no need to leave the page.</p>
+
+    <div class="viz-grid reveal">
+      <div class="viz-card">
+        <h4>Final Assignment</h4>
+        <div class="viz-embed">
+          <iframe
+            src="https://public.tableau.com/views/FinalAssignment_16991073070610/7_Dashboard?:showVizHome=no&:embed=true"
+            loading="lazy"
+            title="Tableau viz: Final Assignment"
+          ></iframe>
+        </div>
       </div>
-      <a class="btn btn-ghost" href="https://public.tableau.com/app/profile/panagiotis.karras" target="_blank" rel="noopener">View profile</a>
+      <div class="viz-card">
+        <h4>Sales Assignment</h4>
+        <div class="viz-embed">
+          <iframe
+            src="https://public.tableau.com/views/SalesAssignment_16990251143890/Dashboard1?:showVizHome=no&:embed=true"
+            loading="lazy"
+            title="Tableau viz: Sales Assignment"
+          ></iframe>
+        </div>
+      </div>
+      <div class="viz-card">
+        <h4>Top 10 Profitable Products</h4>
+        <div class="viz-embed">
+          <iframe
+            src="https://public.tableau.com/views/Top10ProfitableProducts_16986650377460/Top10ProfitableProducts?:showVizHome=no&:embed=true"
+            loading="lazy"
+            title="Tableau viz: Top 10 Profitable Products"
+          ></iframe>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta-row">
+      <a class="btn btn-ghost" href="https://public.tableau.com/app/profile/panagiotis.karras" target="_blank" rel="noopener">View full Tableau Public profile</a>
     </div>
   </div>
 </section>
@@ -447,7 +864,7 @@
 <footer id="contact">
   <div class="wrap">
     <h2>Contact</h2>
-    <div class="contact-grid">
+    <div class="contact-grid reveal">
       <div class="contact-item">
         <div class="label">Email</div>
         <div class="value"><a href="mailto:Panoskar1995@gmail.com">Panoskar1995@gmail.com</a></div>
@@ -480,6 +897,117 @@
 </div>
 
 <script>
+  (function () {
+    var revealEls = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+    if (!revealEls.length || !('IntersectionObserver' in window)) {
+      revealEls.forEach(function (el) { el.classList.add('in-view'); });
+      return;
+    }
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in-view');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -60px 0px' },
+    );
+    revealEls.forEach(function (el) { observer.observe(el); });
+  })();
+
+  (function () {
+    var chapters = Array.prototype.slice.call(document.querySelectorAll('.chapter'));
+    var expandAllBtn = document.getElementById('expandAllBtn');
+
+    function setChapterOpen(chapter, open) {
+      chapter.classList.toggle('open', open);
+      chapter.querySelector('.chapter-toggle').setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+
+    chapters.forEach(function (chapter) {
+      var toggle = chapter.querySelector('.chapter-toggle');
+      toggle.addEventListener('click', function () {
+        setChapterOpen(chapter, !chapter.classList.contains('open'));
+      });
+    });
+
+    if (expandAllBtn) {
+      var allOpen = false;
+      expandAllBtn.addEventListener('click', function () {
+        allOpen = !allOpen;
+        chapters.forEach(function (chapter) { setChapterOpen(chapter, allOpen); });
+        expandAllBtn.textContent = allOpen ? 'Collapse all' : 'Expand all';
+      });
+    }
+
+    // Sidebar sub-links: open the target chapter before the browser scrolls to it
+    document.querySelectorAll('.sidenav-sub').forEach(function (link) {
+      link.addEventListener('click', function () {
+        var id = link.getAttribute('href').slice(1);
+        var chapter = document.getElementById(id);
+        if (chapter) setChapterOpen(chapter, true);
+      });
+    });
+  })();
+
+  (function () {
+    var groups = Array.prototype.slice.call(document.querySelectorAll('.sidenav-group'));
+
+    function setGroupExpanded(group, expanded) {
+      group.classList.toggle('expanded', expanded);
+      var btn = group.querySelector('.sidenav-expand');
+      if (btn) btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    }
+
+    groups.forEach(function (group) {
+      var expandBtn = group.querySelector('.sidenav-expand');
+      var sectionLink = group.querySelector('.sidenav-section');
+      if (expandBtn) {
+        expandBtn.addEventListener('click', function (event) {
+          event.preventDefault();
+          setGroupExpanded(group, !group.classList.contains('expanded'));
+        });
+      }
+      // Clicking the section name itself also reveals its sub-items
+      if (sectionLink && expandBtn) {
+        sectionLink.addEventListener('click', function () {
+          setGroupExpanded(group, true);
+        });
+      }
+    });
+
+    window.__setSidenavGroupExpanded = setGroupExpanded;
+  })();
+
+  (function () {
+    var sectionLinks = Array.prototype.slice.call(document.querySelectorAll('.sidenav-section'));
+    if (!sectionLinks.length || !('IntersectionObserver' in window)) return;
+
+    var sections = sectionLinks
+      .map(function (link) { return document.getElementById(link.getAttribute('data-section')); })
+      .filter(Boolean);
+
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          sectionLinks.forEach(function (link) {
+            var isActive = link.getAttribute('data-section') === entry.target.id;
+            link.classList.toggle('active', isActive);
+            var group = link.closest('.sidenav-group');
+            if (group && isActive && window.__setSidenavGroupExpanded) {
+              window.__setSidenavGroupExpanded(group, true);
+            }
+          });
+        });
+      },
+      { rootMargin: '-40% 0px -55% 0px' },
+    );
+    sections.forEach(function (section) { observer.observe(section); });
+  })();
+
   (function () {
     var figures = Array.prototype.slice.call(document.querySelectorAll('.shots figure'));
     if (!figures.length) return;
